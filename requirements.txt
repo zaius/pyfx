@@ -12,6 +12,6 @@ pyfiglet==1.0.2; python_version >= '3.9'
 pyperclip==1.9.0
 pyyaml==6.0.2; python_version >= '3.8'
 typing-extensions==4.12.2; python_version >= '3.8'
-urwid==2.6.15; python_version >= '3.8'
+urwid>=2.6.15,<4.0.0; python_version >= '3.8'
 wcwidth==0.2.13
 yamale==5.2.1; python_version >= '3.8'

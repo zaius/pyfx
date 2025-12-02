@@ -1,4 +1,5 @@
 # Generated from JSONPath.g4 by ANTLR 4.13.2
+# from __future__ import annotations
 from antlr4 import *
 if "." in __name__:
     from .JSONPathParser import JSONPathParser
@@ -139,4 +140,4 @@ class JSONPathListener(ParseTreeListener):
         pass
 
 
-del JSONPathParser
+# del JSONPathParser

@@ -54,13 +54,13 @@ class JSONBrowserTest(unittest.TestCase):
         # verify
         self.assertTrue(texts_before_refresh != texts_after_refresh)
         texts_before_refresh_expected = [
-            [b'[                 '],
-            [b'   ', b'{\xe2\x80\xa6}            '],
+            [b'[  // 1 item      '],
+            [b'   ', b'{\xe2\x80\xa6}  // 1 key  '],
             [b']                 '],
         ]
         self.assertEqual(texts_before_refresh_expected, texts_before_refresh)
         texts_after_refresh_expected = [
-            [b'{                 '],
+            [b'{  // 1 key      '],
             [b'   ', b'"key"', b': ', b'"value"', b' '],
             [b'}                 '],
         ]
@@ -93,7 +93,7 @@ class JSONBrowserTest(unittest.TestCase):
 
         # verify
         expected = [
-            [b'{\xe2\x80\xa6}               '],
+            [b'{\xe2\x80\xa6}  // 1 key     '],
             [b'                  '],
             [b'                  '],
             [b'                  '],

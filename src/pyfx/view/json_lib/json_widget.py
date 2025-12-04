@@ -115,6 +115,7 @@ class JSONWidget(urwid.WidgetWrap):
             'json.numeric': 'json.focused',
             'json.integer': 'json.focused',
             'json.bool': 'json.focused',
+            'json.count': 'json.focused',
         }
         return urwid.AttrMap(indented_widget, None, focus_attr_map)
 

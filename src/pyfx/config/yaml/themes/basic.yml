@@ -52,6 +52,9 @@ json_bool:
 json_null:
   foreground: 'light red'
   background: 'black'
+json_count:
+  foreground: 'dark gray'
+  background: 'black'
 json_focused:
   foreground: 'light gray'
   background: 'dark blue'

@@ -33,7 +33,7 @@ class JSONListBoxTest(unittest.TestCase):
                             for row in listbox.render((18, 1)).content()]
 
         # verify
-        expected_collapse_content = [[b'[\xe2\x80\xa6]               ']]
+        expected_collapse_content = [[b'[\xe2\x80\xa6]  // 1 item    ']]
         self.assertEqual(expected_collapse_content, collapse_content)
 
     def test_toggle_expanded_on_end_widget(self):
@@ -58,7 +58,7 @@ class JSONListBoxTest(unittest.TestCase):
                             for row in listbox.render((18, 1)).content()]
 
         # verify
-        expected_collapse_content = [[b'[\xe2\x80\xa6]               ']]
+        expected_collapse_content = [[b'[\xe2\x80\xa6]  // 1 item    ']]
         self.assertEqual(expected_collapse_content, collapse_content)
 
     def test_toggle_expanded_on_start_widget_mouse(self):
@@ -79,7 +79,7 @@ class JSONListBoxTest(unittest.TestCase):
                             for row in listbox.render((18, 1)).content()]
 
         # verify
-        expected_collapse_content = [[b'[\xe2\x80\xa6]               ']]
+        expected_collapse_content = [[b'[\xe2\x80\xa6]  // 1 item    ']]
         self.assertEqual(expected_collapse_content, collapse_content)
 
     def test_toggle_expanded_on_start_widget(self):
@@ -99,7 +99,7 @@ class JSONListBoxTest(unittest.TestCase):
                             for row in listbox.render((18, 1)).content()]
 
         # verify
-        expected_collapse_content = [[b'[\xe2\x80\xa6]               ']]
+        expected_collapse_content = [[b'[\xe2\x80\xa6]  // 1 item    ']]
         self.assertEqual(expected_collapse_content, collapse_content)
 
     def test_list_box_with_simple_object(self):
@@ -156,7 +156,7 @@ class JSONListBoxTest(unittest.TestCase):
         # been expanded
         self.assertEqual(3, len(texts_until_moving_to_end))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 1 key      ']],
             [[b'   ', b'"key"', b': ', b'"value"', b' ']],
             [[b'}                 ']],
         ]
@@ -165,7 +165,7 @@ class JSONListBoxTest(unittest.TestCase):
         # verify that after moving to the start, all the expanded lines is
         # collapsed
         self.assertEqual(1, len(texts_until_moving_to_start))
-        expected = [[[b'{\xe2\x80\xa6}               ']]]
+        expected = [[[b'{\xe2\x80\xa6}  // 1 key     ']]]
         self.assertEqual(expected, texts_until_moving_to_start)
 
     def test_list_box_with_nested_object(self):
@@ -224,8 +224,8 @@ class JSONListBoxTest(unittest.TestCase):
         # been expanded
         self.assertEqual(1, len(texts_until_moving_to_end))
         expected = [[
-            [b'{                 '],
-            [b'   ', b'"key"', b': ', b'{       '],
+            [b'{  // 1 key      '],
+            [b'   ', b'"key"', b': ', b'{  // 1 key'],
             [b'      ', b'"key"', b': ', b'"val"'],
             [b'   ', b'}              '],
             [b'}                 ']
@@ -235,7 +235,7 @@ class JSONListBoxTest(unittest.TestCase):
         # verify that after moving to the start, all the expanded lines is
         # collapsed
         self.assertEqual(1, len(texts_until_moving_to_start))
-        expected = [[[b'{\xe2\x80\xa6}               ']]]
+        expected = [[[b'{\xe2\x80\xa6}  // 1 key     ']]]
         self.assertEqual(expected, texts_until_moving_to_start)
 
     def test_expand_all_from_start_node(self):
@@ -259,8 +259,8 @@ class JSONListBoxTest(unittest.TestCase):
 
         # verify
         expected = [
-            [b'{                 '],
-            [b'   ', b'"key"', b': ', b'{       '],
+            [b'{  // 1 key      '],
+            [b'   ', b'"key"', b': ', b'{  // 1 key'],
             [b'      ', b'"key"', b': ', b'"val"'],
             [b'   ', b'}              '],
             [b'}                 ']
@@ -303,15 +303,15 @@ class JSONListBoxTest(unittest.TestCase):
 
         # verify
         expected = [
-            [b'[                 '],
-            [b'   ', b'{              '],
-            [b'      ', b'"key"', b': ', b'[    '],
+            [b'[  // 2 items    '],
+            [b'   ', b'{  // 1 key  '],
+            [b'      ', b'"key"', b': ', b'[  // 2 items'],
             [b'         ', b'"1"', b'      '],
             [b'         ', b'"2"', b'      '],
             [b'      ', b']           '],
             [b'   ', b'}              '],
-            [b'   ', b'{              '],
-            [b'      ', b'"key"', b': ', b'[    '],
+            [b'   ', b'{  // 1 key  '],
+            [b'      ', b'"key"', b': ', b'[  // 1 item'],
             [b'         ', b'"2"', b'      '],
             [b'      ', b']           '],
             [b'   ', b'}              '],
@@ -341,7 +341,7 @@ class JSONListBoxTest(unittest.TestCase):
 
         # verify
         expected = [
-            [b'{\xe2\x80\xa6}               '],
+            [b'{\xe2\x80\xa6}  // 1 key     '],
             [b'                  ']
         ]
         self.assertEqual(expected, content)
@@ -389,7 +389,7 @@ class JSONListBoxTest(unittest.TestCase):
 
         # verify
         expected = [
-            [b'[\xe2\x80\xa6]               '],
+            [b'[\xe2\x80\xa6]  // 2 items    '],
             [b'                  ']
         ]
         self.assertEqual(expected, content)
@@ -431,9 +431,9 @@ class JSONListBoxTest(unittest.TestCase):
 
         # verify
         expected = [
-            [b'[                 '],
-            [b'   ', b'{\xe2\x80\xa6}            '],
-            [b'   ', b'{\xe2\x80\xa6}            '],
+            [b'[  // 2 items    '],
+            [b'   ', b'{\xe2\x80\xa6}  // 1 key  '],
+            [b'   ', b'{\xe2\x80\xa6}  // 1 key  '],
             [b']                 ']
         ]
         self.assertEqual(expected, content)

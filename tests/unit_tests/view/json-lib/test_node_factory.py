@@ -30,7 +30,7 @@ class NodeFactoryTest(unittest.TestCase):
         # verify
         self.assertEqual(5, len(texts))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 3 keys     ']],
             [[b'   ', b'"_id"', b': ', b'1', b'       ']],
             [[b'   ', b'"_name"', b': ', b'"test"']],
             [[b'   ', b'"_flag"', b': ', b'true', b'  ']],
@@ -59,7 +59,7 @@ class NodeFactoryTest(unittest.TestCase):
         # verify
         self.assertEqual(5, len(texts))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 3 keys     ']],
             [[b'   ', b'"id"', b': ', b'1', b'        ']],
             [[b'   ', b'"name"', b': ', b'"test"', b' ']],
             [[b'   ', b'"flag"', b': ', b'true', b'   ']],

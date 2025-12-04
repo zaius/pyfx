@@ -11,4 +11,6 @@ class ArrayStartWidget(JSONWidget):
 
     @overrides
     def load_value_markup(self):
-        return "["
+        count = len(self._node.get_value())
+        items_text = "item" if count == 1 else "items"
+        return ["[  ", ('json.count', f"// {count} {items_text}")]

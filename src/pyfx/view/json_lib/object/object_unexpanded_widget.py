@@ -11,4 +11,6 @@ class ObjectUnexpandedWidget(JSONWidget):
 
     @overrides
     def load_value_markup(self):
-        return "{\u2026}"
+        count = len(self._node.get_value())
+        keys_text = "key" if count == 1 else "keys"
+        return ["{\u2026}  ", ('json.count', f"// {count} {keys_text}")]

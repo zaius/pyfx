@@ -44,7 +44,7 @@ class ObjectNodeTest(unittest.TestCase):
         # verify
         self.assertEqual(4, len(texts))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 2 keys     ']],
             [[b'   ', b'"name"', b': ', b'"John"', b' ']],
             [[b'   ', b'"age"', b': ', b'28', b'      ']],
             [[b'}                 ']],
@@ -87,7 +87,7 @@ class ObjectNodeTest(unittest.TestCase):
         # verify
         self.assertEqual(2, len(texts))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 0 keys     ']],
             [[b'}                 ']],
         ]
         self.assertEqual(expected, texts)
@@ -121,7 +121,7 @@ class ObjectNodeTest(unittest.TestCase):
         # verify
         self.assertEqual(4, len(texts))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 2 keys     ']],
             [[b'   ', b'"k1"', b': ', b'"v1"', b'     ']],
             [[b'   ', b'"k2"', b': ', b'"v2"', b'     ']],
             [[b'}                 ']],
@@ -158,8 +158,8 @@ class ObjectNodeTest(unittest.TestCase):
         # verify
         self.assertEqual(5, len(texts))
         expected = [
-            [[b'{                 ']],
-            [[b'   ', b'"key"', b': ', b'{       ']],
+            [[b'{  // 1 key      ']],
+            [[b'   ', b'"key"', b': ', b'{  // 1 key']],
             [[b'      ', b'"key"', b': ', b'"val"']],
             [[b'   ', b'}              ']],
             [[b'}                 ']],
@@ -196,8 +196,8 @@ class ObjectNodeTest(unittest.TestCase):
         # verify
         self.assertEqual(5, len(texts))
         expected = [
-            [[b'{                 ']],
-            [[b'   ', b'"key"', b': ', b'[       ']],
+            [[b'{  // 1 key      ']],
+            [[b'   ', b'"key"', b': ', b'[  // 1 item']],
             [[b'      ', b'1', b'           ']],
             [[b'   ', b']              ']],
             [[b'}                 ']],
@@ -226,7 +226,7 @@ class ObjectNodeTest(unittest.TestCase):
         # verify
         self.assertEqual(4, len(texts))
         expected = [
-            [[b'{                 ']],
+            [[b'{  // 2 keys     ']],
             [[b'   ', b'"k1"', b': ', b'"v1"', b'     ']],
             [[b'   ', b'"k2"', b': ', b'"v2"', b'     ']],
             [[b'}                 ']],

@@ -19,6 +19,8 @@ from pyfx.view.components import AutoCompletePopUp
 from pyfx.view.components import HelpPopUp
 from pyfx.view.components import JSONBrowser
 from pyfx.view.components import QueryBar
+from pyfx.view.components.search_bar import SearchBar
+from pyfx.view.components.search_bar import SearchBarKeyMapper
 from pyfx.view.components import WarningBar
 from pyfx.view.json_lib.json_node_factory import JSONNodeFactory
 from pyfx.view.keys import KeyMapper
@@ -91,6 +93,19 @@ class PyfxApp:
         self._mediator.register("query_bar", "pass_keypress",
                                 self._query_bar.pass_keypress)
 
+        # Create search bar with callback to JSON browser's search method
+        def search_callback(query, forward=True):
+            if hasattr(self._json_browser._w, 'search'):
+                result = self._json_browser._w.search(query, forward)
+                if not result:
+                    self._mediator.notify("search_bar", "update", "warning_bar",
+                                          "No matches found.")
+                    self._mediator.notify("search_bar", "show", "view_frame",
+                                          "warning_bar", False)
+
+        self._search_bar = SearchBar(self._mediator, self._keymapper.search_bar,
+                                      search_callback)
+
         # pop up factories
         def autocomplete_factory(*args, **kwargs):
             def get_autocomplete_popup_params(original_widget, pop_up_widget,
@@ -145,6 +160,7 @@ class PyfxApp:
             # footers
             {
                 "query_bar": self._query_bar,
+                "search_bar": self._search_bar,
                 "warning_bar": self._warning_bar
             },
             {

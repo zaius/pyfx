@@ -31,6 +31,11 @@ json_browser:
   expand_all: "ctrl x e"
   collapse_all: "ctrl x c"
   toggle_expansion: "enter"
+  expand: "ctrl f"
+  collapse: "ctrl b"
+  open_search_bar: "ctrl s"
+  search_next: "ctrl s"
+  search_prev: "ctrl r"
   open_query_bar: "meta x"
   open_help_page: "ctrl h"
   exit: "ctrl x ctrl c"
@@ -38,4 +43,9 @@ json_browser:
 # Key Mappings for Query Bar
 query_bar:
   query: "enter"
+  cancel: "ctrl g"
+
+# Key Mappings for Search Bar
+search_bar:
+  search: "enter"
   cancel: "ctrl g"

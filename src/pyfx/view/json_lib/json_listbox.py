@@ -22,9 +22,14 @@ class JSONListBox(urwid.ListBox):
             "up": self.move_focus_to_prev_line,
             "down": self.move_focus_to_next_line,
             "enter": self.toggle_collapse_on_focused_parent,
+            "right": self.expand_focused_node,
+            "left": self.collapse_focused_node,
             "e": self.expand_all,
-            "c": self.collapse_all
+            "c": self.collapse_all,
         }
+        # Search state
+        self._search_query = None
+        self._last_search_position = None
         # set body to JSONListWalker
         super().__init__(walker)
 
@@ -81,8 +86,9 @@ class JSONListBox(urwid.ListBox):
 
         if middle is None:
             # this should not happen and need to be look into.
-            logger.info(f"{self}.calculate_visible({size}, True) returns "
-                        "middle as None")
+            logger.info(
+                f"{self}.calculate_visible({size}, True) returns " "middle as None"
+            )
             return
 
         row_offset, focus_widget, focus_pos, focus_rows, cursor = middle
@@ -91,8 +97,7 @@ class JSONListBox(urwid.ListBox):
 
         # fill_above is in bottom-up order
         fill_above.reverse()
-        widget_list = fill_above + [(focus_widget, focus_pos, focus_rows)] + \
-            fill_below
+        widget_list = fill_above + [(focus_widget, focus_pos, focus_rows)] + fill_below
 
         # Loops through the widgets list and find the clicked widget
         clicked_widget_row = -trim_top
@@ -125,8 +130,7 @@ class JSONListBox(urwid.ListBox):
         prev_widget, prev_position = widget, position
         while prev_widget is not None and prev_position is not None:
 
-            if prev_widget.is_expandable() and \
-                    (not prev_position.is_expanded()):
+            if prev_widget.is_expandable() and (not prev_position.is_expanded()):
                 prev_position.toggle_expanded()
                 prev_position = prev_position.get_end_node()
 
@@ -135,8 +139,7 @@ class JSONListBox(urwid.ListBox):
         next_widget, next_position = widget, position
         while next_widget is not None and next_position is not None:
 
-            if next_widget.is_expandable() and \
-                    (not next_position.is_expanded()):
+            if next_widget.is_expandable() and (not next_position.is_expanded()):
                 next_position.toggle_expanded()
 
             next_widget, next_position = self.body.get_next(next_position)
@@ -185,6 +188,57 @@ class JSONListBox(urwid.ListBox):
         position.toggle_expanded()
         self._invalidate()
 
+    def _change_focus_maintaining_scroll(self, size, new_position, offset_adjustment=0):
+        """Change focus to new_position while maintaining scroll position"""
+        middle, top, bottom = self.calculate_visible(size, True)
+        if middle is not None:
+            row_offset, focus_widget, focus_pos, focus_rows, cursor = middle
+            self.change_focus(size, new_position, row_offset + offset_adjustment)
+        else:
+            self.change_focus(size, new_position)
+
+    def expand_focused_node(self, size):
+        """Expands the focused node, or moves to first child if already expanded"""
+        widget, position = self.get_focus()
+
+        if not widget.is_expandable():
+            return
+
+        # If we're on an end node, move to start first
+        if position.is_end_node():
+            self.move_focus_from_end_node_to_start_node(size)
+            widget, position = self.get_focus()
+
+        # Expand if not already expanded
+        if not position.is_expanded():
+            position.toggle_expanded()
+            self._invalidate()
+        else:
+            # Already expanded, move to first child
+            first_child = position.get_first_child()
+            if first_child is not None:
+                # Get current widget height to position child below
+                middle, top, bottom = self.calculate_visible(size, True)
+                focus_rows = middle[3] if middle else 1
+                self._change_focus_maintaining_scroll(size, first_child, focus_rows)
+
+    def collapse_focused_node(self, size):
+        """Collapses the focused node, or moves to parent if already collapsed"""
+        widget, position = self.get_focus()
+
+        # If we're on an end node, move to start node first
+        if widget.is_expandable() and position.is_end_node():
+            self.move_focus_from_end_node_to_start_node(size)
+            widget, position = self.get_focus()
+
+        # If this node is expandable and expanded, collapse it
+        if widget.is_expandable() and position.is_expanded():
+            position.toggle_expanded()
+            self._invalidate()
+        # Otherwise, move focus to the parent node if it exists
+        elif position.get_parent() is not None:
+            self._change_focus_maintaining_scroll(size, position.get_parent())
+
     def move_focus_from_end_node_to_start_node(self, size):
         """Moves focus from an end node to start node"""
         widget, position = self.get_focus()
@@ -227,8 +281,9 @@ class JSONListBox(urwid.ListBox):
 
         if middle is None:
             # this should not happen and need to be look into.
-            logger.info(f"{self}.calculate_visible({size}, True) returns "
-                        "middle as None")
+            logger.info(
+                f"{self}.calculate_visible({size}, True) returns " "middle as None"
+            )
             return
 
         row_offset, focus_widget, focus_pos, focus_rows, cursor = middle
@@ -243,7 +298,7 @@ class JSONListBox(urwid.ListBox):
         # must scroll since we at the first row of the current canvas
         self._invalidate()
 
-        self.change_focus(size, prev_position, 0, 'below')
+        self.change_focus(size, prev_position, 0, "below")
 
     def move_focus_to_next_line(self, size):
         """Moves focus to next line"""
@@ -262,8 +317,9 @@ class JSONListBox(urwid.ListBox):
 
         if middle is None:
             # this should not happen and need to be look into.
-            logger.info(f"{self}.calculate_visible({size}, True) returns "
-                        "middle as None")
+            logger.info(
+                f"{self}.calculate_visible({size}, True) returns " "middle as None"
+            )
             return
 
         row_offset, focus_widget, focus_pos, focus_rows, cursor = middle
@@ -278,4 +334,125 @@ class JSONListBox(urwid.ListBox):
         # must scroll since we at the last row of the current canvas
         self._invalidate()
 
-        self.change_focus(size, next_position, maxrow, 'above')
+        self.change_focus(size, next_position, maxrow, "above")
+
+    def _node_matches_search(self, position, query):
+        """Check if a node's text representation contains the search query (case-insensitive)"""
+        if not query:
+            return False
+
+        # Skip end nodes - they don't have searchable content
+        if position.is_end_node():
+            return False
+
+        query_lower = query.lower()
+
+        # Check the node's key
+        if (
+            hasattr(position, "get_key")
+            and position.get_key()
+            and query_lower in str(position.get_key()).lower()
+        ):
+            return True
+
+        # Check the node's value representation
+        if hasattr(position, "get_value"):
+            value = position.get_value()
+            if value is not None and query_lower in str(value).lower():
+                return True
+
+        return False
+
+    def _expand_parents(self, position):
+        """Expand all parent nodes of the given position"""
+        parent = position.get_parent() if hasattr(position, "get_parent") else None
+        while parent is not None:
+            if hasattr(parent, "is_expanded") and not parent.is_expanded():
+                parent.toggle_expanded()
+            parent = parent.get_parent() if hasattr(parent, "get_parent") else None
+
+    def search(self, query, forward=True):
+        """Search for text in the JSON tree"""
+        if not query:
+            return False
+
+        self._search_query = query
+        widget, start_position = self.get_focus()
+
+        if start_position is None:
+            return False
+
+        # Start searching from the next/previous position
+        if forward:
+            current_widget, current_position = self.body.get_next(start_position)
+        else:
+            current_widget, current_position = self.body.get_prev(start_position)
+
+        # Search through all positions
+        while current_position is not None:
+            if self._node_matches_search(current_position, query):
+                # Expand parent nodes to make the match visible
+                self._expand_parents(current_position)
+                self._invalidate()
+                # Found a match, move to it
+                self.set_focus(current_position)
+                self._last_search_position = current_position
+                return True
+
+            # Move to next/prev position
+            if forward:
+                current_widget, current_position = self.body.get_next(current_position)
+            else:
+                current_widget, current_position = self.body.get_prev(current_position)
+
+        # No match found, wrap around
+        # Get the root position to start from the beginning/end
+        root_position = start_position
+        while (
+            hasattr(root_position, "get_parent")
+            and root_position.get_parent() is not None
+        ):
+            root_position = root_position.get_parent()
+
+        if forward:
+            # Start from the root
+            current_widget, current_position = root_position.get_widget(), root_position
+        else:
+            # For backward search, start from root and go to the last position
+            current_widget, current_position = root_position.get_widget(), root_position
+            # Keep going next until we can't
+            while True:
+                next_widget, next_position = self.body.get_next(current_position)
+                if next_position is None:
+                    break
+                current_widget, current_position = next_widget, next_position
+
+        # Search from the beginning/end until we reach the start position
+        while current_position is not None and current_position != start_position:
+            if self._node_matches_search(current_position, query):
+                # Expand parent nodes to make the match visible
+                self._expand_parents(current_position)
+                self._invalidate()
+                self.set_focus(current_position)
+                self._last_search_position = current_position
+                return True
+
+            if forward:
+                current_widget, current_position = self.body.get_next(current_position)
+            else:
+                current_widget, current_position = self.body.get_prev(current_position)
+
+        # No match found at all
+        return False
+
+    def search_next(self):
+        """Find next match of the last search query"""
+        if self._search_query:
+            return self.search(self._search_query, forward=True)
+        return False
+
+    def search_prev(self):
+        """Find previous match of the last search query"""
+        if self._search_query:
+            return self.search(self._search_query, forward=False)
+        return False

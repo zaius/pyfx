@@ -18,6 +18,7 @@ from pyfx.view.components.autocomplete_popup import AutoCompletePopUpKeyMapper
 from pyfx.view.components.help_popup import HelpPopUpKeyMapper
 from pyfx.view.components.json_browser import JSONBrowserKeyMapper
 from pyfx.view.components.query_bar import QueryBarKeyMapper
+from pyfx.view.components.search_bar import SearchBarKeyMapper
 
 
 class InputFilter:
@@ -73,6 +74,7 @@ class KeyMapper:
 
     json_browser: JSONBrowserKeyMapper = JSONBrowserKeyMapper()
     query_bar: QueryBarKeyMapper = QueryBarKeyMapper()
+    search_bar: SearchBarKeyMapper = SearchBarKeyMapper()
     autocomplete_popup: AutoCompletePopUpKeyMapper = \
         AutoCompletePopUpKeyMapper()
     help_popup: HelpPopUpKeyMapper = HelpPopUpKeyMapper()
@@ -93,6 +95,7 @@ class KeyMapper:
         description = [
             self.json_browser.detailed_help,
             self.query_bar.detailed_help,
+            self.search_bar.detailed_help,
             self.autocomplete_popup.detailed_help,
             self.help_popup.detailed_help
         ]

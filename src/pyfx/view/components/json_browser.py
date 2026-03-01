@@ -20,6 +20,13 @@ class JSONBrowserKeys(KeyDefinition, Enum):
     EXPAND_ALL = "e", "Expand all the node."
     TOGGLE_EXPANSION = "enter", \
                        "Toggle to expand/collapse the current JSON node."
+    EXPAND = "right", "Expand the current JSON node."
+    COLLAPSE = "left", "Collapse the current JSON node or move to parent."
+
+    # keys for search
+    OPEN_SEARCH_BAR = "/", "Open the search bar to find text."
+    SEARCH_NEXT = "n", "Find next search match."
+    SEARCH_PREV = "N", "Find previous search match."
 
     # keys for switching window
     OPEN_QUERY_BAR = ".", "Open the query bar to type JSONPath."
@@ -35,10 +42,15 @@ class JSONBrowserKeyMapper(BaseComponentKeyMapper):
 
     open_help_page: str = "?"
     open_query_bar: str = "."
+    open_search_bar: str = "/"
+    search_next: str = "n"
+    search_prev: str = "N"
 
     cursor_up: str = "up"
     cursor_down: str = "down"
     toggle_expansion: str = "enter"
+    expand: str = "right"
+    collapse: str = "left"
     expand_all: str = "e"
     collapse_all: str = "c"
 
@@ -49,8 +61,13 @@ class JSONBrowserKeyMapper(BaseComponentKeyMapper):
             self.cursor_up: JSONBrowserKeys.CURSOR_UP,
             self.cursor_down: JSONBrowserKeys.CURSOR_DOWN,
             self.toggle_expansion: JSONBrowserKeys.TOGGLE_EXPANSION,
+            self.expand: JSONBrowserKeys.EXPAND,
+            self.collapse: JSONBrowserKeys.COLLAPSE,
             self.expand_all: JSONBrowserKeys.EXPAND_ALL,
             self.collapse_all: JSONBrowserKeys.COLLAPSE_ALL,
+            self.open_search_bar: JSONBrowserKeys.OPEN_SEARCH_BAR,
+            self.search_next: JSONBrowserKeys.SEARCH_NEXT,
+            self.search_prev: JSONBrowserKeys.SEARCH_PREV,
             self.open_query_bar: JSONBrowserKeys.OPEN_QUERY_BAR,
             self.open_help_page: JSONBrowserKeys.OPEN_HELP_PAGE,
             self.exit: JSONBrowserKeys.EXIT
@@ -72,7 +89,9 @@ class JSONBrowserKeyMapper(BaseComponentKeyMapper):
         keys = [
             self.exit,
             self.cursor_up, self.cursor_down, self.toggle_expansion,
+            self.expand, self.collapse,
             self.expand_all, self.collapse_all,
+            self.open_search_bar, self.search_next, self.search_prev,
             self.open_query_bar, self.open_help_page
         ]
         descriptions = {key: self.mapped_key[key].description for key in keys}
@@ -113,6 +132,33 @@ class JSONBrowser(urwid.WidgetWrap):
         if key == JSONBrowserKeys.OPEN_HELP_PAGE.key:
             self._mediator.notify("json_browser", "open_pop_up", "view_frame",
                                   pop_up_type="help")
+            return None
+
+        if key == JSONBrowserKeys.OPEN_SEARCH_BAR.key:
+            self._mediator.notify("json_browser", "show", "view_frame",
+                                  "search_bar", True)
+            return None
+
+        if key == JSONBrowserKeys.SEARCH_NEXT.key:
+            # Call search_next on the listbox
+            if hasattr(self._w, 'search_next') and self._w.search_next():
+                return None
+            else:
+                self._mediator.notify("json_browser", "update", "warning_bar",
+                                      "No more matches found.")
+                self._mediator.notify("json_browser", "show", "view_frame",
+                                      "warning_bar", False)
+            return None
+
+        if key == JSONBrowserKeys.SEARCH_PREV.key:
+            # Call search_prev on the listbox
+            if hasattr(self._w, 'search_prev') and self._w.search_prev():
+                return None
+            else:
+                self._mediator.notify("json_browser", "update", "warning_bar",
+                                      "No more matches found.")
+                self._mediator.notify("json_browser", "show", "view_frame",
+                                      "warning_bar", False)
             return None
 
         self._mediator.notify("json_browser", "update", "warning_bar",

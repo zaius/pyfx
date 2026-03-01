@@ -215,6 +215,10 @@ class JSONWidget(urwid.WidgetWrap):
     @overrides
     def keypress(self, size, key):
         """Delegates keypress into inner widget."""
+        # Don't delegate left/right to inner widget - they're for tree navigation
+        if key in ('left', 'right'):
+            return key
+
         if self._w.selectable():
             key = self._w.keypress(size, key)
 
